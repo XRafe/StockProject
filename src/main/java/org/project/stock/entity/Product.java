@@ -23,6 +23,8 @@ public class Product {
 
     private String name;
 
+    private Integer count;
+
     private Long priceLastBuy;
 
     private Long priceLastSale;
@@ -34,13 +36,14 @@ public class Product {
     @JoinColumn(name = "stock_id", insertable = false, updatable = false)
     private Stock stock;
 
-    public Product(String article,
-                   String name,
-                   Long priceLastBuy,
-                   Long priceLastSale) {
+    public Product(String article, String name,
+                   Integer count, Long priceLastBuy,
+                   Long priceLastSale, Integer stockId) {
         this.article = article;
         this.name = name;
+        this.count = count;
         this.priceLastBuy = priceLastBuy;
         this.priceLastSale = priceLastSale;
+        this.stockId = stockId;
     }
 }
