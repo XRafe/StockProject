@@ -38,13 +38,14 @@ public class ProductReportImpl implements ProductReport {
     @Override
     public List<ReportProductRemainsDto> getRemainsProducts() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        CriteriaQuery<ReportProductRemainsDto> cq = cb.createQuery(ReportProductRemainsDto.class);
         Root<Product> root = cq.from(Product.class);
 
-        cq.select(root).groupBy(cb.sum(root.get("count")));
+        cq.multiselect(root.get("article"), root.get("name"), cb.sum(root.get("count")))
+                .groupBy(root.get("article"), root.get("name"));
 
         Query query = em.createQuery(cq);
 
-        return reportMapper.mapProductToReportProductRemainsDto(query.getResultList());
+        return query.getResultList();
     }
 }

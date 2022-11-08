@@ -12,9 +12,13 @@ public interface ProductService {
 
     List<ProductDto> entranceProduct(ProductDocumentEntranceDto productDocumentEntranceDto);
 
-    List<ProductDto> replaceProduct(ProductDocumentReplaceDto productDocumentReplaceDto);
+    List<ProductDto> replaceProduct(Integer newStock, ProductDocumentReplaceDto productDocumentReplaceDto);
 
     List<ProductDto> saleProduct(ProductDocumentSaleDto productDocumentSaleDto);
 
-    ProductDto editProduct(ProductEditDto productEditDto);
+    ProductDto editProduct(Integer id, ProductEditDto productEditDto);
+
+    List<ProductDto> getAllProduct();
+
+    String deleteProduct(Integer id);
 }

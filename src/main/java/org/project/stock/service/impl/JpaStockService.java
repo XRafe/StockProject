@@ -45,4 +45,11 @@ public class JpaStockService implements StockService {
         List<Stock> stocks = stockRepository.findAll();
         return stockMapper.mapStockToStockDto(stocks);
     }
+
+    @Override
+    public String deleteStock(Integer id) {
+        stockRepository.deleteById(id);
+
+        return "Товар успешно удалён";
+    }
 }

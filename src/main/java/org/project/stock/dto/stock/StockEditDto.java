@@ -3,16 +3,15 @@ package org.project.stock.dto.stock;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 public class StockEditDto {
 
-    private final Integer id;
-
+    @NotNull
     private final String name;
 
-    public StockEditDto(@JsonProperty("id") Integer id,
-                        @JsonProperty("name") String name) {
-        this.id = id;
+    public StockEditDto(@JsonProperty("name") String name) {
         this.name = name;
     }
 }

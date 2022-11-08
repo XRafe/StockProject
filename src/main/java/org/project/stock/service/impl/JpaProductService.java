@@ -1,10 +1,7 @@
 package org.project.stock.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.project.stock.dto.product.ProductDto;
-import org.project.stock.dto.product.ProductEditDto;
-import org.project.stock.dto.product.ProductEntranceDto;
-import org.project.stock.dto.product.ProductSaleDto;
+import org.project.stock.dto.product.*;
 import org.project.stock.dto.product.document.ProductDocumentEntranceDto;
 import org.project.stock.dto.product.document.ProductDocumentReplaceDto;
 import org.project.stock.dto.product.document.ProductDocumentSaleDto;
@@ -31,37 +28,73 @@ public class JpaProductService implements ProductService {
         List<ProductDto> productDtos = new ArrayList<>();
 
         for (ProductEntranceDto productEntranceDto : productDocumentEntranceDto.getProducts()) {
-            Product product = new Product(
-                    productEntranceDto.getArticle(),
-                    productEntranceDto.getName(),
-                    productEntranceDto.getCount(),
-                    productEntranceDto.getPriceBuy(),
-                    null,
-                    productDocumentEntranceDto.getStockId()
-            );
+            Product product;
 
-            productRepository.saveAndFlush(product);
+            if (!productRepository.existsByArticleAndStockId(productEntranceDto.getArticle(),
+                    productDocumentEntranceDto.getStockId())) {
+                product = new Product(
+                        productEntranceDto.getArticle(),
+                        productEntranceDto.getName(),
+                        productEntranceDto.getCount(),
+                        productEntranceDto.getPriceBuy(),
+                        null,
+                        productDocumentEntranceDto.getStockId()
+                );
+
+            } else {
+                product = productRepository.findByArticleAndStockId(productEntranceDto.getArticle(),
+                        productDocumentEntranceDto.getStockId()).orElseThrow();
+
+                product.setCount(product.getCount() + productEntranceDto.getCount());
+            }
+            productRepository.save(product);
 
             productDtos.add(productMapper.mapProductToProductDto(product));
         }
+
+        productRepository.flush();
 
         return productDtos;
     }
 
     @Transactional
     @Override
-    public List<ProductDto> replaceProduct(ProductDocumentReplaceDto productDocumentReplaceDto) {
+    public List<ProductDto> replaceProduct(Integer newStock, ProductDocumentReplaceDto productDocumentReplaceDto) {
         List<ProductDto> productDtos = new ArrayList<>();
 
-        for (ProductDto productDto : productDocumentReplaceDto.getProducts()) {
-            Product product = productRepository.findByName(productDto.getName())
-                    .orElseThrow();
-            product.setStockId(productDocumentReplaceDto.getNewStock());
+        for (ProductReplaceDto productDto : productDocumentReplaceDto.getProducts()) {
+            Product newProduct;
+            Product oldProduct = productRepository.findByArticleAndStockId(productDto.getArticle(),
+                    productDocumentReplaceDto.getOldStock()).orElseThrow();
 
-            productRepository.saveAndFlush(product);
+            validateCountProduct(oldProduct.getCount(), productDto.getCount());
 
-            productDtos.add(productMapper.mapProductToProductDto(product));
+            if (!productRepository.existsByArticleAndStockId(productDto.getArticle(),
+                    newStock)) {
+                newProduct = new Product(
+                        oldProduct.getArticle(),
+                        oldProduct.getName(),
+                        productDto.getCount(),
+                        oldProduct.getPriceLastBuy(),
+                        oldProduct.getPriceLastSale(),
+                        newStock
+                );
+
+            } else {
+                newProduct = productRepository.findByArticleAndStockId(productDto.getArticle(),
+                        newStock).orElseThrow();
+                newProduct.setCount(newProduct.getCount() + productDto.getCount());
+            }
+
+            oldProduct.setCount(oldProduct.getCount() - productDto.getCount());
+
+            productRepository.save(newProduct);
+            productRepository.save(oldProduct);
+
+            productDtos.add(productMapper.mapProductToProductDto(newProduct));
         }
+
+        productRepository.flush();
 
         return productDtos;
     }
@@ -72,23 +105,28 @@ public class JpaProductService implements ProductService {
         List<ProductDto> productDtos = new ArrayList<>();
 
         for (ProductSaleDto productSaleDto : productDocumentSaleDto.getProducts()) {
-            Product product = productRepository.findByName(productSaleDto.getName())
-                    .orElseThrow();
+            Product product = productRepository.findByArticleAndStockId(productSaleDto.getArticle(),
+                    productDocumentSaleDto.getStockId()).orElseThrow();
+
+            validateCountProduct(product.getCount(), productSaleDto.getCount());
 
             product.setCount(product.getCount() - productSaleDto.getCount());
             product.setPriceLastSale(productSaleDto.getPriceSale());
 
-            productRepository.saveAndFlush(product);
+            productRepository.save(product);
 
             productDtos.add(productMapper.mapProductToProductDto(product));
         }
+
+        productRepository.flush();
+
         return productDtos;
     }
 
     @Transactional
     @Override
-    public ProductDto editProduct(ProductEditDto productEditDto) {
-        Product product = productRepository.findByName(productEditDto.getName())
+    public ProductDto editProduct(Integer id, ProductEditDto productEditDto) {
+        Product product = productRepository.findById(id)
                 .orElseThrow();
 
         product.setArticle(productEditDto.getArticle());
@@ -98,5 +136,25 @@ public class JpaProductService implements ProductService {
         productRepository.saveAndFlush(product);
 
         return productMapper.mapProductToProductDto(product);
+    }
+
+    @Override
+    public List<ProductDto> getAllProduct() {
+        List<Product> products = productRepository.findAll();
+        return productMapper.mapProductToProductDto(products);
+    }
+
+    @Transactional
+    @Override
+    public String deleteProduct(Integer id) {
+        productRepository.deleteById(id);
+
+        return "Склад номер: " + id + " успешно удалён";
+    }
+
+    private void validateCountProduct(Integer countProduct, Integer countPickUpProduct) {
+        if (countProduct - countPickUpProduct < 0) {
+            throw new ArithmeticException("Такого кол-ва товара нет на складе!");
+        }
     }
 }

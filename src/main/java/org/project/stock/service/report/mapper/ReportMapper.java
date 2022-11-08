@@ -1,7 +1,6 @@
 package org.project.stock.service.report.mapper;
 
 import org.project.stock.dto.report.ReportProductDto;
-import org.project.stock.dto.report.ReportProductRemainsDto;
 import org.project.stock.entity.Product;
 import org.springframework.stereotype.Component;
 
@@ -24,20 +23,6 @@ public class ReportMapper {
     public List<ReportProductDto> mapProductToReportProductDto(Collection<Product> products) {
         return products.stream()
                 .map(this::mapProductToReportProductDto)
-                .collect(Collectors.toList());
-    }
-
-    public ReportProductRemainsDto mapProductToReportProductRemainsDto(Product product) {
-        return new ReportProductRemainsDto(
-                product.getArticle(),
-                product.getName(),
-                product.getCount()
-        );
-    }
-
-    public List<ReportProductRemainsDto> mapProductToReportProductRemainsDto(Collection<Product> products) {
-        return products.stream()
-                .map(this::mapProductToReportProductRemainsDto)
                 .collect(Collectors.toList());
     }
 }

@@ -13,4 +13,6 @@ public interface StockService {
     StockDto editStock(Integer id, StockEditDto stockEditDto);
 
     List<StockDto> getAllStocks();
+
+    String deleteStock(Integer id);
 }

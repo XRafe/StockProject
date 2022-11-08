@@ -11,5 +11,5 @@ public class ReportProductRemainsDto {
 
     private final String name;
 
-    private final Integer count;
+    private final Long sumCountRemains;
 }
