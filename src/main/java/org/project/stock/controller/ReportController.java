@@ -6,10 +6,7 @@ import org.project.stock.dto.report.ReportProductRemainsDto;
 import org.project.stock.service.report.ProductReport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,8 +17,8 @@ public class ReportController {
 
     private final ProductReport productReport;
 
-    @PostMapping
-    public ResponseEntity<List<ReportProductDto>> getProductsByName(String name) {
+    @PostMapping("/{name}")
+    public ResponseEntity<List<ReportProductDto>> getProductsByName(@PathVariable("name") String name) {
         return new ResponseEntity<>(productReport.getProductsByName(name),
                 HttpStatus.OK);
     }
