@@ -23,5 +23,5 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - name: Run application
-      run: javac src/main/java/org/project/stock/StockProjectApplication.java
+    - name: Compile with Maven
+      run: --settings pom.xml compile
