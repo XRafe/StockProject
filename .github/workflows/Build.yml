@@ -24,4 +24,4 @@ jobs:
       run: mvn -B package --file pom.xml
       
     - name: Run application
-      run: coverage run src/main/java/org/project/stock/StockProjectApplication.java
+      run: javac src/main/java/org/project/stock/StockProjectApplication.java
