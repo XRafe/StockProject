@@ -41,6 +41,6 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: Start Test
-      run: mvn test
+      run: mvn -B package --file pom.xml test
   
     
