@@ -24,4 +24,4 @@ jobs:
       run: mvn -B package --file pom.xml
       
     - name: Compile with Maven
-      run: --settings pom.xml compile
+      run: mvn --settings pom.xml compile
